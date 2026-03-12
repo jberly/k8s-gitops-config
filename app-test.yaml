@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mon-nginx
+  name: cyberaware-deployment
   namespace: dev 
 spec:
   replicas: 2
@@ -14,10 +14,10 @@ spec:
         app: web-test
     spec:
       containers:
-      - name: nginx-container
-        image: nginx:latest
+      - name: cyberaware-container
+        image: ton-username/cyberaware:v1 # <--- REMPLACE 'ton-username' PAR TON PSEUDO DOCKER HUB
         ports:
-        - containerPort: 80
+        - containerPort: 3000 # <--- Next.js écoute ici
 ---
 apiVersion: v1
 kind: Service
@@ -29,9 +29,9 @@ spec:
     app: web-test
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer # k3d l'expose vers l'exterieur
+      port: 80 # Le port que l'Ingress utilise (on ne change pas ici)
+      targetPort: 3000 # <--- ON DIT AU SERVICE D'ENVOYER VERS LE 3000
+  type: LoadBalancer
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
