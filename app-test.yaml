@@ -1,45 +1,42 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cyberaware-deployment
+  name: cyberaware-dep
   namespace: dev 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: web-test
+      app: web-app
   template:
     metadata:
       labels:
-        app: web-test
+        app: web-app
     spec:
       containers:
-      - name: cyberaware-container
-        image: ton-username/cyberaware:v1 # <--- REMPLACE 'ton-username' PAR TON PSEUDO DOCKER HUB
+      - name: cyberaware-cont
+        image: ton-pseudo/cyberaware:v1
         ports:
-        - containerPort: 3000 # <--- Next.js écoute ici
+        - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-nginx
+  name: svc-cyberaware
   namespace: dev
 spec:
   selector:
-    app: web-test
+    app: web-app
   ports:
     - protocol: TCP
-      port: 80 # Le port que l'Ingress utilise (on ne change pas ici)
-      targetPort: 3000 # <--- ON DIT AU SERVICE D'ENVOYER VERS LE 3000
-  type: LoadBalancer
+      port: 80
+      targetPort: 3000
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-ingress
+  name: web-ingress
   namespace: dev
-  annotations:
-    ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   rules:
   - http:
@@ -48,6 +45,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: svc-nginx
+            name: svc-cyberaware
             port:
               number: 80
