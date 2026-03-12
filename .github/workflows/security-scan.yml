@@ -1,0 +1,33 @@
+name: Secure-CI-Scan
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  trivy-scan:
+    name: Scan de Sécurité (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      # Analyse de l'image pour détecter les vulnérabilités
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          # On cible l'image que tu utilises réellement dans ton déploiement
+          image-ref: 'jberly/cyberaware-hosting:v1' 
+          format: 'table'
+          # ligne qui sécurise mon cluster : 
+          # Si Trivy trouve une faille CRITICAL ou HIGH, le pipeline s'arrête (exit-code 1)
+          exit-code: '1' 
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true # ignorer les failles sans correctif disponible pour éviter les faux positifs
+ 
+      # Ajouter un résumé clair dans les logs pour prouver que le scan a été fait
+      - name: Afficher le résumé du scan
+        if: always() # Cette étape s'exécute même si le scan échoue
+        run: echo "Scan de sécurité Trivy terminé."
